@@ -1,10 +1,14 @@
 package com.numadic.restapi.entity;
 
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -13,21 +17,20 @@ public class Vehicle {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-	@Column
+	private int id;
 	private String model;
-	@Column
 	private String make;
 	@Column(name = "regNumber")
 	private String registrationNumber;
-	@Column
 	private String ownerName;
-	@Column
 	private String ownerContactNumber;
+	
+	@OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL)
+    private List<Location> locations;
 
 	//Constructors
 	public Vehicle() {
-
+		
 	}
 
 	public Vehicle(String model, String make, String registrationNumber, String ownerName,
@@ -41,11 +44,11 @@ public class Vehicle {
 	}
 
 	//Getter and Setters
-	public Long getId() {
+	public int getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 
@@ -89,6 +92,7 @@ public class Vehicle {
 		this.ownerContactNumber = ownerContactNumber;
 	}
 
+	// To String method
 	@Override
 	public String toString() {
 		return "Vehicle [id=" + id + ", model=" + model + ", make=" + make + ", registrationNumber="

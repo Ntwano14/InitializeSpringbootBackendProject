@@ -1,9 +1,11 @@
 package com.numadic.restapi.service;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import com.numadic.restapi.entity.Vehicle;
 import com.numadic.restapi.repository.VehicleRepository;
 
@@ -11,49 +13,45 @@ import com.numadic.restapi.repository.VehicleRepository;
 public class VehicleService {
 
 	private final VehicleRepository vehicleRepository;
+	
 
 	@Autowired
-	public VehicleService(VehicleRepository vehicleRepository) {
-		this.vehicleRepository = vehicleRepository;
-	}
+    public VehicleService(VehicleRepository vehicleRepository) {
+        this.vehicleRepository = vehicleRepository;
+    }
 
 	// Method to retrieve all vehicles from the database
-	public List<Vehicle> getAllVehicles() {
-		return vehicleRepository.findAll();
-	}
+    public List<Vehicle> getAllVehicles() {
+        return vehicleRepository.findAll();
+    }
 
 	// Method to retrieve a vehicle by its ID
-	public Vehicle getVehicleById(Long id) {
-		return vehicleRepository.findById(id).orElse(null);
-	}
+	public Optional<Vehicle> getVehicleById(int id) {
+        return vehicleRepository.findById(id);
+    }
 
-	// Method to save a new vehicle
-	public Vehicle saveVehicle(Vehicle vehicle) {
-		return vehicleRepository.save(vehicle);
-	}
+	// Method to register a new vehicle
+	 public Vehicle registerVehicle(Vehicle vehicle) {
+	        return vehicleRepository.save(vehicle);
+	    }
 
 	// Method to update an existing vehicle
-	public Vehicle updateVehicle(Long id, Vehicle updatedVehicle) {
-		Vehicle existingVehicle = vehicleRepository.findById(id).orElse(null);
-		if (existingVehicle != null) {
-			existingVehicle.setModel(updatedVehicle.getModel());
-			existingVehicle.setMake(updatedVehicle.getMake());
-			existingVehicle.setRegistrationNumber(updatedVehicle.getRegistrationNumber());
-			existingVehicle.setOwnerName(updatedVehicle.getOwnerName());
-			existingVehicle.setOwnerContactNumber(updatedVehicle.getOwnerContactNumber());
-			return vehicleRepository.save(existingVehicle);
-		} else {
-			return null; // Handle the case where the vehicle with the given ID doesn't exist
-		}
-	}
+	public Vehicle updateVehicle(int id, Vehicle updatedVehicle) {
+        if (vehicleRepository.existsById(id)) {
+            updatedVehicle.setId(id);
+            return vehicleRepository.save(updatedVehicle);
+        } else {
+            throw new RuntimeException("Vehicle not found with id: " + id);
+        }
+    }
 
-	// Method to delete a vehicle by its ID
-	public void deleteVehicle(Long id) {
-		vehicleRepository.deleteById(id);
-	}
+	// Method to remove a vehicle by its ID
+	public void removeVehicle(int id) {
+        if (vehicleRepository.existsById(id)) {
+            vehicleRepository.deleteById(id);
+        } else {
+            throw new RuntimeException("Vehicle not found with id: " + id);
+        }
+    }
 
-	// Method to find vehicles by owner name
-	public List<Vehicle> findVehiclesByOwnerName(String ownerName) {
-		return vehicleRepository.findByOwnerName(ownerName);
-	}
 }

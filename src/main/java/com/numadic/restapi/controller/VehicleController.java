@@ -10,56 +10,55 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.numadic.restapi.entity.Vehicle;
-import com.numadic.restapi.repository.VehicleRepository;
+import com.numadic.restapi.service.VehicleService;
 
 @RestController
+@RequestMapping("/api/vehicles")
 public class VehicleController {
 
+	private final VehicleService vehicleService;
+
 	@Autowired
-	VehicleRepository repo;
+	public VehicleController(VehicleService vehicleService) {
+		this.vehicleService = vehicleService;
+	}
 
 	//Get all the vehicles
 	//localhost:8080/vehicles
-	@GetMapping("/vehicles")
-	public List<Vehicle> getAllVehicles()
-	{
-		List<Vehicle> vehicles = repo.findAll();
-		return vehicles;
+	@GetMapping
+	public List<Vehicle> getAllVehicles() {
+		return vehicleService.getAllVehicles();
 	}
 
-	//Get all a vehicles
+	//Get a vehicle
 	//localhost:8080/vehicles/1
-	@GetMapping("/vehicles/{id}")
-	public Vehicle getVehicle(@PathVariable Long id)
-	{
-		Vehicle vehicle = repo.findById(id).get();
-		return vehicle;
+	@GetMapping("/{id}")
+	public Vehicle getVehicleById(@PathVariable int id) {
+		return vehicleService.getVehicleById(id)
+				.orElseThrow(() -> new RuntimeException("Vehicle not found with id: " + id));
 	}
 
-	@PostMapping("/vehicle/add")
-	@ResponseStatus(code = HttpStatus.CREATED)
-	public void registerVehicle(@RequestBody Vehicle vehicle)
-	{
-		repo.save(vehicle);
+	//Registering a vehicle
+	@PostMapping("/add")
+	@ResponseStatus(HttpStatus.CREATED)
+	public Vehicle registerVehicle(@RequestBody Vehicle vehicle) {
+		return vehicleService.registerVehicle(vehicle);
 	}
 
-	@PutMapping("/vehicle/update/{id}")
-	public Vehicle updateVehicle(@PathVariable Long id)
-	{
-		Vehicle vehicle = repo.findById(id).get();
-		vehicle.setOwnerName("Khensie");
-		repo.save(vehicle);
-		return vehicle;
-	} 
+	//Updating a vehicle
+	@PutMapping("/update/{id}")
+	public Vehicle updateVehicle(@PathVariable int id, @RequestBody Vehicle updatedVehicle) {
+		return vehicleService.updateVehicle(id, updatedVehicle);
+	}
 
-	@DeleteMapping("/vehicle/delete/{id}")
-	public void removeVehicle(@PathVariable Long id)
-	{
-		Vehicle vehicle = repo.findById(id).get();
-		repo.delete(vehicle);
+	@DeleteMapping("/delete/{id}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void removeVehicle(@PathVariable int id) {
+		vehicleService.removeVehicle(id);
 	}
 }
