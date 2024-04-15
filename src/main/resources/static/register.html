@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Registration</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Include CSS file for styling -->
+    
+     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</head>
+<body>
+    <h1>Vehicle Registration</h1>
+    <form id="vehicleForm">
+        <label for="make">Make:</label>
+        <input type="text" id="make" name="make" required><br><br>
+        
+        <label for="model">Model:</label>
+        <input type="text" id="model" name="model" required><br><br>
+        
+        <label for="registrationNumber">Registration Number:</label>
+        <input type="text" id="registrationNumber" name="registrationNumber" required><br><br>
+        
+        <label for="ownerName">Owner Name:</label>
+        <input type="text" id="ownerName" name="ownerName" required><br><br>
+        
+        <label for="ownerContactNumber">Owner Contact Number:</label>
+        <input type="text" id="ownerContactNumber" name="ownerContactNumber" required><br><br>
+        
+        <button type="submit">Register Vehicle</button>
+    </form>
+    
+    <div id="message"></div> <!-- Display success or error messages -->
+    
+    <div id="map" style="height: 400px;"></div>
+
+    
+    <script src="script.js"></script> <!-- Include JavaScript file for sending HTTP requests -->
+    
+    <script>
+    var map = L.map('map').setView([51.505, -0.09], 13); // Example: London
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+</script>
+
+<script>
+    // Example: Fetch vehicle location data from the backend
+    fetch('/api/vehicles')
+        .then(response => response.json())
+        .then(data => {
+            data.forEach(vehicle => {
+                L.marker([vehicle.latitude, vehicle.longitude]).addTo(map)
+                    .bindPopup(vehicle.model + ' ' + vehicle.make); // Customize popup content
+            });
+        });
+</script>
+
+
+</body>
+</html>

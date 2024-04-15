@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,17 +15,24 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.numadic.restapi.entity.Location;
+import com.numadic.restapi.entity.Vehicle;
 import com.numadic.restapi.service.LocationService;
 
 @RestController
 @RequestMapping("/locations")
 public class LocationController {
 
-    private final LocationService locationService;
+	private final LocationService locationService;
 
     @Autowired
     public LocationController(LocationService locationService) {
         this.locationService = locationService;
+    }
+
+    @GetMapping("/latest/{vehicleId}")
+    public ResponseEntity<Location> getLatestLocation(@PathVariable Vehicle vehicleId) {
+        Location latestLocation = locationService.generateRandomLocationForVehicle(vehicleId);
+        return ResponseEntity.ok(latestLocation);
     }
 
     @GetMapping("/view")
