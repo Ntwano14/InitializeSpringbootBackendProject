@@ -1,91 +1,70 @@
+// VehicleController.java
 package com.numadic.restapi.controller;
 
-import java.util.List;
-
+import com.numadic.restapi.entity.Vehicle;
+import com.numadic.restapi.exception.ResourceNotFoundException;
+import com.numadic.restapi.service.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
-import com.numadic.restapi.entity.Location;
-import com.numadic.restapi.entity.Vehicle;
-import com.numadic.restapi.service.LocationService;
-import com.numadic.restapi.service.VehicleService;
+import jakarta.validation.Valid;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/vehicles")
+@CrossOrigin(origins = "http://127.0.0.1:5500")
 public class VehicleController {
 
-	 private final VehicleService vehicleService;
-	    private final LocationService locationService;
+    private final VehicleService vehicleService;
 
-	    @Autowired
-	    public VehicleController(VehicleService vehicleService, LocationService locationService) {
-	        this.vehicleService = vehicleService;
-	        this.locationService = locationService;
-	    }
+    @Autowired
+    public VehicleController(VehicleService vehicleService) {
+        this.vehicleService = vehicleService;
+    }
 
-	    @GetMapping("/{id}/locations")
-	    public List<Location> getLocationsByVehicleId(@PathVariable int id) {
-	        // First, check if the vehicle exists
-	        if (!vehicleService.existsById(id)) {
-	            throw new RuntimeException("Vehicle not found with id: " + id);
-	        }
+    @GetMapping
+    public ResponseEntity<List<Vehicle>> getAllVehicles() {
+        List<Vehicle> vehicles = vehicleService.getAllVehicles();
+        return ResponseEntity.ok(vehicles);
+    }
 
-	        // Fetch location data for the specified vehicle
-	        return locationService.getLocationsByVehicleId(id);
-	    }
+    @GetMapping("/{id}")
+    public ResponseEntity<Vehicle> getVehicleById(@PathVariable Integer id) {
+        Vehicle vehicle = vehicleService.getVehicleById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Vehicle not found with id: " + id));
+        return ResponseEntity.ok(vehicle);
+    }
 
-	//Get all the vehicles
-	//localhost:8080/vehicles
-	@GetMapping
-	public List<Vehicle> getAllVehicles() {
-		return vehicleService.getAllVehicles();
-	}
+    @PostMapping("/add")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<Vehicle> registerVehicle(@Valid @RequestBody Vehicle vehicle) {
+        Vehicle savedVehicle = vehicleService.registerVehicle(vehicle);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedVehicle);
+    }
 
-	//Get a vehicle
-	//localhost:8080/vehicles/1
-	@GetMapping("/{id}")
-	public Vehicle getVehicleById(@PathVariable int id) {
-		return vehicleService.getVehicleById(id)
-				.orElseThrow(() -> new RuntimeException("Vehicle not found with id: " + id));
-	}
+    @PutMapping("/update/{id}")
+    public ResponseEntity<Vehicle> updateVehicle(@PathVariable Integer id, @Valid @RequestBody Vehicle updatedVehicle) {
+        Optional<Vehicle> optionalVehicle = vehicleService.getVehicleById(id);
+        if (optionalVehicle.isEmpty()) {
+            throw new ResourceNotFoundException("Vehicle not found with id: " + id);
+        }
+        Vehicle vehicle = vehicleService.updateVehicle(id, updatedVehicle);
+        return ResponseEntity.ok(vehicle);
+    }
 
-	//Registering a vehicle
-	@PostMapping("/add")
-	@ResponseStatus(HttpStatus.CREATED)
-	public Vehicle registerVehicle(@RequestBody Vehicle vehicle) {
-		return vehicleService.registerVehicle(vehicle);
-	}
 
-	//Updating a vehicle
-	@PutMapping("/update/{id}")
-	public Vehicle updateVehicle(@PathVariable int id, @RequestBody Vehicle updatedVehicle) {
-		return vehicleService.updateVehicle(id, updatedVehicle);
-	}
-
-	@DeleteMapping("/delete/{id}")
-	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void removeVehicle(@PathVariable int id) {
-		vehicleService.removeVehicle(id);
-	}
-	
-	@GetMapping("/vehicles/{id}/tracked")
-	public ResponseEntity<?> isVehicleTracked(@PathVariable int id) {
-	    boolean isTracked = locationService.isVehicleTracked(id);
-	    if (isTracked) {
-	        return ResponseEntity.ok("Vehicle is being tracked");
-	    } else {
-	        return ResponseEntity.ok("Vehicle is not being tracked");
-	    }
-	}
+    @DeleteMapping("/delete/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeVehicle(@PathVariable Integer id) {
+        Optional<Vehicle> optionalVehicle = vehicleService.getVehicleById(id);
+        if (optionalVehicle.isEmpty()) {
+            throw new ResourceNotFoundException("Vehicle not found with id: " + id);
+        }
+        vehicleService.removeVehicle(id);
+    }
 
 }
