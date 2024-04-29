@@ -11,6 +11,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -31,7 +32,7 @@ public class Vehicle {
 
     @NotNull
     @Column(name = "regNumber", unique = true)
-    @Pattern(regexp = "\\w{3}\\s\\d{3}", message = "Registration number must be in the format: ABC-123")
+    @Pattern(regexp = "\\w{3}\\s\\d{3}s\\d{2}", message = "Registration number must be in the format: ABC 123 GP")
     private String registrationNumber;
 
     @NotBlank
