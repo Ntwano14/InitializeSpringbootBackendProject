@@ -1,33 +1,19 @@
 package com.numadic.restapi.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
-@CrossOrigin
+@RestController
+@CrossOrigin(origins = "http://127.0.0.1:5500")
 public class LoginController {
 
-	Authentication authentication;
+    @GetMapping("/login")
+    public String login(Authentication authentication) {
 
-    @GetMapping("/login/get")
-    public String loginForm() {
-        return "login"; // Returns the login form
-    }
+        String userName = authentication.getName();
 
-    @PostMapping("/login")
-    public String login(@RequestParam("username") String username, @RequestParam("password") String password) {
-        // Authenticate the user
-        authentication = new UsernamePasswordAuthenticationToken(username, password);
-        
-        // If authentication is successful, redirect to some page
-        return "login";
+        return "Spring Security In-memory Authentication Example - Welcome " + userName;
     }
 }
-

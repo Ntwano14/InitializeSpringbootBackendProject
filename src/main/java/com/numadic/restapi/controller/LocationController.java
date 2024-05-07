@@ -25,7 +25,7 @@ import com.numadic.restapi.service.LocationService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/locations")
+@RequestMapping("/locations")
 @CrossOrigin(origins = "http://127.0.0.1:5500")
 public class LocationController {
 
